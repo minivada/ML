@@ -1,0 +1,115 @@
+Here’s a detailed breakdown of each line of the code:
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+# from yellowbrick.cluster import KElbowVisualizer
+```
+- **Explanation**: 
+  - `import pandas as pd`: Imports the pandas library as `pd`, used for data manipulation and analysis.
+  - `import matplotlib.pyplot as plt`: Imports the `matplotlib.pyplot` module as `plt`, which is used for creating visualizations (e.g., plots).
+  - `from sklearn.cluster import KMeans`: Imports the `KMeans` clustering algorithm from `sklearn.cluster`, used for partitioning the dataset into clusters.
+  - `# from yellowbrick.cluster import KElbowVisualizer`: This line is commented out but shows that the `KElbowVisualizer` from Yellowbrick (a visualization library) could be used to automatically identify the optimal number of clusters.
+
+```python
+data = pd.read_csv('sales_data_sample.csv', sep = ',', encoding = 'Latin-1')
+data
+```
+- **Explanation**: 
+  - `data = pd.read_csv('sales_data_sample.csv', sep = ',', encoding = 'Latin-1')`: Reads the CSV file `sales_data_sample.csv` into a pandas DataFrame called `data`. 
+    - `sep = ','`: Specifies that the data is comma-separated.
+    - `encoding = 'Latin-1'`: Sets the encoding for reading the file, useful if the file contains non-ASCII characters.
+  - `data`: This line is used to display the dataset (in an interactive environment).
+
+```python
+selected_features = data[['QUANTITYORDERED', 'PRICEEACH']]
+selected_features
+```
+- **Explanation**:
+  - `selected_features = data[['QUANTITYORDERED', 'PRICEEACH']]`: Selects two columns, `'QUANTITYORDERED'` and `'PRICEEACH'`, from the `data` DataFrame for clustering. These are the features chosen for the KMeans clustering algorithm.
+  - `selected_features`: Displays the selected features DataFrame.
+
+```python
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+normalized_features = scaler.fit_transform(selected_features)
+```
+- **Explanation**:
+  - `from sklearn.preprocessing import StandardScaler`: Imports the `StandardScaler` from `sklearn.preprocessing`, which is used for normalizing or standardizing features.
+  - `scaler = StandardScaler()`: Creates an instance of the `StandardScaler` class.
+  - `normalized_features = scaler.fit_transform(selected_features)`: Scales the selected features by removing the mean and scaling to unit variance, which is necessary for many machine learning algorithms like KMeans. It standardizes the features (zero mean, unit variance).
+
+```python
+normalized_features
+```
+- **Explanation**: Displays the normalized version of the selected features.
+
+```python
+wcss = []  # Within-cluster sum of squares
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+    kmeans.fit(normalized_features)
+    wcss.append(kmeans.inertia_)
+```
+- **Explanation**:
+  - `wcss = []`: Initializes an empty list to store the "Within-Cluster Sum of Squares" (WCSS) values for different numbers of clusters.
+  - `for i in range(1, 11)`: Loops through different values of `i` (the number of clusters) from 1 to 10.
+    - `kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)`: Initializes a KMeans object with `i` clusters. 
+      - `n_clusters=i`: Sets the number of clusters to `i`.
+      - `init='k-means++'`: Uses the `k-means++` initialization method, which helps to speed up convergence by choosing initial centroids intelligently.
+      - `max_iter=300`: Limits the maximum number of iterations for the algorithm to 300.
+      - `n_init=10`: Runs the KMeans algorithm 10 times with different centroid seeds and returns the best result.
+      - `random_state=0`: Ensures reproducibility of results.
+    - `kmeans.fit(normalized_features)`: Fits the KMeans model to the normalized features.
+    - `wcss.append(kmeans.inertia_)`: Appends the inertia (WCSS) to the `wcss` list. Inertia measures the sum of squared distances from each point to its assigned cluster center.
+
+```python
+plt.plot(range(1, 11), wcss)
+plt.title('Elbow Method')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS')
+plt.show()
+```
+- **Explanation**:
+  - `plt.plot(range(1, 11), wcss)`: Plots the WCSS values against the number of clusters (1 to 10). The X-axis represents the number of clusters, and the Y-axis represents the WCSS.
+  - `plt.title('Elbow Method')`: Sets the title of the plot as "Elbow Method".
+  - `plt.xlabel('Number of clusters')`: Labels the X-axis as "Number of clusters".
+  - `plt.ylabel('WCSS')`: Labels the Y-axis as "WCSS".
+  - `plt.show()`: Displays the plot.
+
+```python
+optimal_clusters = 3  # Adjust based on the elbow point in the graph
+kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
+cluster_labels = kmeans.fit_predict(normalized_features)
+```
+- **Explanation**:
+  - `optimal_clusters = 3`: After inspecting the elbow plot, you choose 3 as the optimal number of clusters, which corresponds to the "elbow point" (where WCSS starts to decrease more slowly).
+  - `kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)`: Initializes a KMeans object with 3 clusters.
+  - `cluster_labels = kmeans.fit_predict(normalized_features)`: Fits the KMeans model to the normalized features and assigns cluster labels to each data point. The result is stored in `cluster_labels`.
+
+```python
+plt.scatter(normalized_features[:, 0], normalized_features[:, 1], c=cluster_labels, cmap='viridis')
+plt.xlabel('QUANTITYORDERED')
+plt.ylabel('PRICEEACH')
+plt.title('K-Means Clustering')
+plt.show()
+```
+- **Explanation**:
+  - `plt.scatter(normalized_features[:, 0], normalized_features[:, 1], c=cluster_labels, cmap='viridis')`: Creates a scatter plot of the normalized features. 
+    - `normalized_features[:, 0]`: X-axis values (the first feature, `QUANTITYORDERED`).
+    - `normalized_features[:, 1]`: Y-axis values (the second feature, `PRICEEACH`).
+    - `c=cluster_labels`: Colors the points based on the cluster labels.
+    - `cmap='viridis'`: Specifies the color map to use for coloring the points.
+  - `plt.xlabel('QUANTITYORDERED')`: Labels the X-axis as "QUANTITYORDERED".
+  - `plt.ylabel('PRICEEACH')`: Labels the Y-axis as "PRICEEACH".
+  - `plt.title('K-Means Clustering')`: Sets the title of the plot as "K-Means Clustering".
+  - `plt.show()`: Displays the plot.
+
+### Summary:
+This code performs KMeans clustering on a dataset (`sales_data_sample.csv`) by:
+1. Selecting relevant features (`QUANTITYORDERED` and `PRICEEACH`).
+2. Normalizing the data using `StandardScaler`.
+3. Using the elbow method to determine the optimal number of clusters.
+4. Applying KMeans clustering with the chosen number of clusters (3 in this case).
+5. Visualizing the clustered data using a scatter plot.
