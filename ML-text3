@@ -1,0 +1,59 @@
+Let's break down and explain each line of the code you've written.
+
+```python
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, confusion_matrix
+import tensorflow as tf
+from tensorflow import keras
+```
+- **Explanation**: Imports the necessary libraries:
+  - `pandas` is used for data manipulation and analysis.
+  - `train_test_split` from `sklearn.model_selection` is used to split the dataset into training and test sets.
+  - `StandardScaler` from `sklearn.preprocessing` is used to normalize the feature values to have a mean of 0 and a standard deviation of 1.
+  - `accuracy_score` and `confusion_matrix` from `sklearn.metrics` are used to evaluate the performance of the model.
+  - `tensorflow` and `keras` are imported for building and training a neural network model, which can be useful for complex datasets like customer churn.
+
+```python
+# 1. Read the dataset
+data = pd.read_csv("Churn_Modelling.csv")  # Replace with the actual path to the dataset
+data
+```
+- **Explanation**: Loads the dataset into a DataFrame called `data` using `pd.read_csv()`. This file, `Churn_Modelling.csv`, should contain data about customer churn, likely including various features (like customer demographics, account info, etc.) and a target variable indicating whether a customer has exited.
+  - `data` will display the dataset in this environment, which helps in visually verifying the dataset structure.
+
+```python
+# 2. Distinguish features and target
+X = data.drop("Exited", axis=1)  # Features
+y = data["Exited"]  # Target variable
+```
+- **Explanation**: Splits the dataset into features (`X`) and target (`y`).
+  - `X` contains all columns except "Exited," which is dropped using `data.drop("Exited", axis=1)`. The `axis=1` argument specifies that the column, not a row, is being dropped.
+  - `y` is assigned the "Exited" column, which is the target variable indicating if a customer exited (churned) or not.
+
+```python
+X
+```
+- **Explanation**: Displays the features (`X`) to verify that the "Exited" column has been removed and check if there are any other issues.
+
+```python
+# 2. Divide the dataset into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+```
+- **Explanation**: Splits `X` and `y` into training and test sets using an 80-20 split.
+  - `test_size=0.2` indicates that 20% of the data will be allocated to the test set, and the remaining 80% will be used for training.
+  - `random_state=42` ensures that the data split is reproducible, so the same training and test sets will be created each time the code is run.
+
+```python
+# 3. Normalize the data
+# scaler = StandardScaler()
+# X_train = scaler.fit_transform(X_train)
+# X_test = scaler.transform(X_test)
+```
+- **Explanation**: Normalizes (scales) the feature values in `X_train` and `X_test` to have a mean of 0 and a standard deviation of 1, which often improves model performance for neural networks and other machine learning models.
+  - `scaler = StandardScaler()` initializes a `StandardScaler` object.
+  - `scaler.fit_transform(X_train)` fits the scaler to the training data and transforms it, scaling the values based on the mean and standard deviation of the training set.
+  - `scaler.transform(X_test)` scales the test set based on the scaler fitted on the training set, ensuring consistency in feature scaling between training and test data.
+
+These steps prepare the data for modeling by loading, splitting, and (optionally) normalizing it, which is crucial for achieving reliable results in machine learning models.
