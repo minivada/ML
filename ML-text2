@@ -1,0 +1,118 @@
+Let's go through each section of the code to understand what it does, line by line:
+
+```python
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, classification_report
+```
+- **Explanation**: Imports the essential libraries:
+  - `pandas` for data handling and manipulation.
+  - `train_test_split` from `sklearn.model_selection` to split data into training and test sets.
+  - `KNeighborsClassifier` and `SVC` for implementing K-Nearest Neighbors and Support Vector Machine models.
+  - `accuracy_score` and `classification_report` to evaluate model performance.
+
+```python
+# Load the dataset
+data = pd.read_csv("emails.csv")  # Replace with the actual path to the dataset 
+data
+```
+- **Explanation**: Loads the email dataset from a CSV file using `pd.read_csv()`.
+
+```python
+# 1. Data Preprocessing - Handle missing values if necessary
+data.drop(['Email No.'], axis=1, inplace=True)
+```
+- **Explanation**: Removes the column named "Email No." (assumed to be irrelevant for prediction purposes) from the dataset. The `inplace=True` parameter means the change is applied directly to the original DataFrame.
+
+```python
+# 2. Feature Selection/Engineering - Select relevant features
+X = data.drop("Prediction", axis=1)  # Features
+y = data["Prediction"]  # Target variable
+print("Features: ", X)
+print("Target: ", y)
+```
+- **Explanation**: Separates the dataset into features (`X`) and target variable (`y`).
+  - `X` contains all columns except "Prediction," which will be used to predict the class.
+  - `y` contains the "Prediction" column, which is the target class label (likely spam or not spam).
+
+```python
+# 3. Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+```
+- **Explanation**: Splits `X` and `y` into training and testing sets.
+  - `test_size=0.3` specifies that 30% of the data will be used for testing, and the remaining 70% for training.
+  - `random_state=42` ensures that the split is reproducible.
+
+```python
+# 4. Model Building
+# K-Nearest Neighbors
+knn_model = KNeighborsClassifier(n_neighbors=5)
+knn_model.fit(X_train, y_train)
+```
+- **Explanation**: Initializes and trains a K-Nearest Neighbors (KNN) model.
+  - `n_neighbors=5` sets the number of neighbors to consider.
+  - `fit(X_train, y_train)` trains the KNN model on the training data.
+
+```python
+# Support Vector Machine
+svm_model = SVC()
+svm_model.fit(X_train, y_train)
+```
+- **Explanation**: Initializes and trains a Support Vector Machine (SVM) model.
+  - `SVC()` creates a Support Vector Classifier model with default parameters.
+  - `fit(X_train, y_train)` trains the SVM model on the training data.
+
+```python
+# 5. Model Evaluation
+# K-Nearest Neighbors
+knn_predictions = knn_model.predict(X_test)
+knn_accuracy = accuracy_score(y_test, knn_predictions)
+knn_report = classification_report(y_test, knn_predictions)
+```
+- **Explanation**: Evaluates the performance of the KNN model.
+  - `predict(X_test)` makes predictions on the test set.
+  - `accuracy_score(y_test, knn_predictions)` calculates the accuracy of the KNN model by comparing predicted and actual test values.
+  - `classification_report(y_test, knn_predictions)` generates a detailed report including precision, recall, and F1-score for each class.
+
+```python
+print(knn_predictions)
+```
+- **Explanation**: Prints the predictions made by the KNN model on the test data.
+
+```python
+# Print or visualize the evaluation results
+print("K-Nearest Neighbors Accuracy:")
+print(knn_accuracy)
+print("K-Nearest Neighbors Classification Report:")
+print(knn_report)
+```
+- **Explanation**: Prints the accuracy and classification report for the KNN model.
+
+```python
+# Support Vector Machine
+svm_predictions = svm_model.predict(X_test)
+svm_accuracy = accuracy_score(y_test, svm_predictions)
+svm_report = classification_report(y_test, svm_predictions)
+```
+- **Explanation**: Evaluates the performance of the SVM model similarly to the KNN model.
+  - `predict(X_test)` makes predictions on the test set.
+  - `accuracy_score(y_test, svm_predictions)` calculates the accuracy of the SVM model.
+  - `classification_report(y_test, svm_predictions)` generates a report on precision, recall, and F1-score for each class.
+
+```python
+print(svm_predictions)
+```
+- **Explanation**: Prints the predictions made by the SVM model on the test data.
+
+```python
+print("Support Vector Machine Accuracy:")
+print(svm_accuracy)
+print("Support Vector Machine Classification Report:")
+print(svm_report)
+```
+- **Explanation**: Prints the accuracy and classification report for the SVM model.
+
+This code sequentially preprocesses the data, splits it, builds and trains two machine learning models (KNN and SVM), and evaluates each model's performance on test data using accuracy and classification reports.
