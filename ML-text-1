@@ -1,0 +1,168 @@
+Certainly! Here's an explanation of each line in the code.
+
+### Import Libraries
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import r2_score, mean_squared_error
+```
+- **Pandas** (`pd`): For data manipulation and analysis, primarily for working with DataFrames.
+- **Numpy** (`np`): For numerical operations, like computing the mean and other statistics.
+- **Matplotlib** (`plt`): For data visualization.
+- **Seaborn** (`sns`): High-level data visualization library that builds on Matplotlib.
+- **Scikit-learn**:
+  - **train_test_split**: For splitting data into training and test sets.
+  - **LinearRegression**: For creating and training a linear regression model.
+  - **RandomForestRegressor**: For creating and training a random forest regression model.
+  - **r2_score** and **mean_squared_error**: To evaluate model performance.
+
+### Load the Dataset
+```python
+data = pd.read_csv("Uber.csv")
+```
+Loads the `Uber.csv` file into a Pandas DataFrame named `data`.
+
+### Convert `pickup_datetime` to Datetime Format
+```python
+data["pickup_datetime"] = pd.to_datetime(data["pickup_datetime"])
+```
+Converts the `pickup_datetime` column to a datetime object, allowing easier manipulation of date and time data.
+
+### Check for Missing Values
+```python
+missing_values = data.isnull().sum()
+print("Missing values in the dataset:")
+print(missing_values)
+```
+Calculates the number of missing values in each column by summing up `True` values from `isnull()`.
+
+### Handle Missing Values
+```python
+data.dropna(inplace=True)
+```
+Drops any rows containing missing values, modifying the DataFrame in place.
+
+### Ensure No More Missing Values
+```python
+missing_values = data.isnull().sum()
+print("Missing values after handling:")
+print(missing_values)
+```
+Checks if all missing values were successfully removed by displaying a new count.
+
+### Visualize Outliers Using a Boxplot
+```python
+sns.boxplot(x=data["fare_amount"])
+plt.show()
+```
+Plots a boxplot for `fare_amount` to visualize outliers. Boxplots display the distribution and show potential outliers as points outside of the whiskers.
+
+### Calculate and Remove Outliers Based on IQR
+```python
+Q1 = data["fare_amount"].quantile(0.25)
+Q3 = data["fare_amount"].quantile(0.75)
+IQR = Q3 - Q1
+
+threshold = 1.5
+lower_bound = Q1 - threshold * IQR
+upper_bound = Q3 + threshold * IQR
+
+data_no_outliers = data[(data["fare_amount"] >= lower_bound) & (data["fare_amount"] <= upper_bound)]
+```
+- **Q1** and **Q3**: First and third quartiles of `fare_amount`, which define the interquartile range (IQR).
+- **IQR**: The difference between Q3 and Q1.
+- **Threshold**: The multiplier (1.5) for identifying outliers.
+- **Lower and Upper Bounds**: Defines the threshold values beyond which data points are considered outliers.
+- **data_no_outliers**: A new DataFrame containing rows where `fare_amount` is within the calculated bounds.
+
+### Visualize `fare_amount` Distribution Without Outliers
+```python
+sns.boxplot(x=data_no_outliers["fare_amount"])
+plt.show()
+```
+Creates a boxplot for `fare_amount` after outliers have been removed.
+
+### Visualize Dataset with Boxplots for All Columns
+```python
+data.plot(kind="box", subplots=True, layout=(7, 2), figsize=(15, 20))
+```
+Creates a grid of boxplots for each column in the dataset, arranged in a 7-row by 2-column layout, to help identify outliers and data distribution for each feature.
+
+### Correlation Matrix Visualization
+```python
+correlation_matrix = data.corr()
+sns.heatmap(correlation_matrix, annot=True)
+plt.show()
+```
+- **correlation_matrix**: Computes the correlation matrix for the dataset.
+- **sns.heatmap**: Plots the correlation matrix as a heatmap with annotated values, allowing you to visually identify strong correlations between variables.
+
+### Select Features (X) and Target (y)
+```python
+X = data[['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'passenger_count']]
+y = data['fare_amount']
+```
+- **X**: Defines the input features used for training the model.
+- **y**: Defines the target variable `fare_amount` that the model will predict.
+
+### Split the Data Into Training and Testing Sets
+```python
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+```
+- Splits `X` and `y` into training and testing sets (80% for training, 20% for testing).
+- **random_state**: Ensures reproducibility by using a fixed random seed.
+
+### Train the Linear Regression Model
+```python
+lr_model = LinearRegression()
+lr_model.fit(X_train, y_train)
+```
+- Creates an instance of `LinearRegression`.
+- **fit()**: Trains the model using `X_train` and `y_train`.
+
+### Train the Random Forest Regression Model
+```python
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+```
+- Creates an instance of `RandomForestRegressor` with 100 trees (`n_estimators`).
+- **fit()**: Trains the model using `X_train` and `y_train`.
+
+### Make Predictions With Both Models
+```python
+y_pred_lr = lr_model.predict(X_test)
+print("Linear Model:", y_pred_lr)
+y_pred_rf = rf_model.predict(X_test)
+print("Random Forest Model:", y_pred_rf)
+```
+- **y_pred_lr**: Predicted values for `X_test` from the linear regression model.
+- **y_pred_rf**: Predicted values for `X_test` from the random forest regression model.
+
+### Evaluate Model Performance
+```python
+r2_lr = r2_score(y_test, y_pred_lr)
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))
+
+print("Linear Regression - R2:", r2_lr)
+print("Linear Regression - RMSE:", rmse_lr)
+```
+- **r2_lr**: R-squared value for the linear regression model, which indicates the proportion of variance explained by the model.
+- **rmse_lr**: Root Mean Squared Error (RMSE) for the linear regression model, a metric for measuring prediction accuracy.
+- **print()**: Displays R-squared and RMSE values for the linear regression model.
+
+### Evaluate Random Forest Model
+```python
+r2_rf = r2_score(y_test, y_pred_rf)
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+
+print("Random Forest Regression R2:", r2_rf)
+print("Random Forest Regression RMSE:", rmse_rf)
+```
+- **r2_rf**: R-squared value for the random forest model.
+- **rmse_rf**: RMSE value for the random forest model.
+- **print()**: Displays R-squared and RMSE values for the random forest model.
